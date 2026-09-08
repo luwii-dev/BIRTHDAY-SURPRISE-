@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎂 Happy Birthday!</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===================== WELCOME SCREEN ===================== -->
+    <section id="welcome-screen" class="screen active">
+        <div class="stars-bg"></div>
+        <div class="welcome-content">
+            <div class="cake-emoji">🎂</div>
+            <h1 class="glow-text">Happy Birthday!</h1>
+            <h2 class="birthday-name" id="birthday-name">✨ Ai...My LOML ✨</h2>
+            <p class="welcome-subtitle">A little something was made just for you...</p>
+            <button class="magic-btn" id="enter-btn">
+                <span class="btn-icon">🎁</span>
+                <span class="btn-text">Open Your Gift</span>
+                <span class="btn-sparkle">✨</span>
+            </button>
+        </div>
+        <div class="floating-emojis" id="floating-emojis"></div>
+    </section>
+
+    <!-- ===================== GIFT REVEAL SCREEN ===================== -->
+    <section id="gift-screen" class="screen">
+        <div class="gift-content">
+            <div class="gift-box" id="gift-box">
+                <div class="gift-lid" id="gift-lid">
+                    <div class="gift-bow">🎀</div>
+                </div>
+                <div class="gift-base">
+                    <div class="gift-pattern">🎁</div>
+                </div>
+            </div>
+            <div class="gift-message hidden" id="gift-message">
+                <div class="surprise-burst">🎉</div>
+                <h2>SURPRISE!</h2>
+                <p>You are the most amazing person and today is all about YOU!</p>
+                <p class="gift-sub">Keep scrolling for more surprises...</p>
+                <button class="magic-btn" id="continue-btn">
+                    <span class="btn-icon">💌</span>
+                    <span class="btn-text">Read Your Letter</span>
+                </button>
+            </div>
+        </div>
+        <div id="confetti-container"></div>
+    </section>
+
+    <!-- ===================== BIRTHDAY LETTER ===================== -->
+    <section id="letter-screen" class="screen">
+        <div class="letter-content">
+            <div class="envelope" id="envelope">
+                <div class="envelope-flap"></div>
+                <div class="envelope-body">💌</div>
+            </div>
+            <div class="letter-paper hidden" id="letter-paper">
+                <div class="letter-header">
+                    <span>💝</span> A Letter For You <span>💝</span>
+                </div>
+                <div class="letter-body">
+                    <p>Dear Birthday Girl,</p>
+                    <p>Happy Birthday, my Ai!❤️</p>
+                    <p>I just want you to know how thankful I am nga naa ka sa akong life. You make my days happier, and even the simplest moments with you become memories I’ll always treasure.</p>
+                    <p>I may not always say it, pero i truly appreciate you more than you know. Thank you for your love, patience, and for simply being you.Please always remember nga deserving ka sa tanan nga good things in life.</p>
+                    <p>I hope you achieve your dreams, stay happy, and never change how beautiful person you are. And no maater what happens, naa ra ko dri to support you and cheer for you.</p>
+                    <p>Enjoy your special day, birthday girl. You deserve all the love and happiness in the world!❤️</p>
+                    <p class="letter-signature">With all my love,<br>
+                    <span class="signature-name">Your Lovely Boyfie! 💕</span></p>
+                </div>
+                <button class="magic-btn" id="gallery-btn">
+                    <span class="btn-icon">📸</span>
+                    <span class="btn-text">View Memories</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== PHOTO GALLERY ===================== -->
+    <section id="gallery-screen" class="screen">
+        <div class="gallery-content">
+            <h2 class="section-title">📸 Our Memories Together 📸</h2>
+            <p class="gallery-subtitle">Every moment with you is a treasure</p>
+            <div class="gallery-grid" id="gallery-grid">
+                <div class="gallery-item" style="--delay: 0.1s">
+                    <div class="polaroid">
+                        <img src="album/pic1.jpg" alt="Memory #1">
+                        <p class="caption">Valentine's Day ❤️</p>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--delay: 0.2s">
+                    <div class="polaroid">
+                        <img src="album/pic2.jpg" alt="Memory #2">
+                        <p class="caption">Best Photograph! 💕</p>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--delay: 0.3s">
+                    <div class="polaroid">
+                        <img src="album/pic3.jpg" alt="Memory #3">
+                        <p class="caption">So Pretty Ai! 💖</p>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--delay: 0.4s">
+                    <div class="polaroid">
+                        <img src="album/pic4.jpg" alt="Memory #4">
+                        <p class="caption">Q-Park Together 💕</p>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--delay: 0.5s">
+                    <div class="polaroid">
+                        <img src="album/pic5.jpg" alt="Memory #5">
+                        <p class="caption">Engineering Night 2025 💖</p>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--delay: 0.6s">
+                    <div class="polaroid">
+                        <img src="album/pic6.jpg" alt="Memory #6">
+                        <p class="caption">First Official Date 💕</p>
+                    </div>
+                </div>
+            </div>
+            <button class="magic-btn" id="finale-btn">
+                <span class="btn-icon">🎆</span>
+                <span class="btn-text">Final Surprise</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ===================== FINAL SURPRISE SCREEN ===================== -->
+    <section id="finale-screen" class="screen">
+        <div class="finale-content">
+            <div class="fireworks" id="fireworks"></div>
+            <div class="finale-text">
+                <div class="big-wish">
+                    <span class="wish-line">🌟</span>
+                    <h1 class="finale-title">Happy Birthday!</h1>
+                    <span class="wish-line">🌟</span>
+                </div>
+                <div class="age-display" id="age-display">
+                    <span class="age-number">🎂</span>
+                </div>
+                <p class="finale-message">
+                    May all your dreams come true today and always!<br>
+                    Wishing you a year filled with love, laughter, and endless happiness. I Love You!
+                </p>
+                <div class="finale-hearts" id="finale-hearts"></div>
+                <div class="wish-cards">
+                    <div class="wish-card">🌈 Health</div>
+                    <div class="wish-card">💰 Wealth</div>
+                    <div class="wish-card">💕 Love</div>
+                    <div class="wish-card">😊 Happiness</div>
+                    <div class="wish-card">🍀 Luck</div>
+                    <div class="wish-card">✈️ Adventure</div>
+                </div>
+                <button class="magic-btn replay-btn" id="replay-btn">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">Replay</span>
+                </button>
+            </div>
+        </div>
+        <div id="finale-confetti"></div>
+    </section>
+
+    <!-- ===================== MUSIC CONTROL ===================== -->
+    <div class="music-control" id="music-control">
+        <button class="music-btn" id="music-btn" title="Toggle Music">
+            <span id="music-icon">🔇</span>
+        </button>
+    </div>
+
+    <!-- Background Music: "Last Night on Earth" by Green Day -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="bg.song/Last Night on Earth.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
