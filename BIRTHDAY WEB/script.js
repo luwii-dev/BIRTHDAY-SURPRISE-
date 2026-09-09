@@ -15,6 +15,8 @@ const galleryBtn = document.getElementById('gallery-btn');
 const finaleBtn = document.getElementById('finale-btn');
 const replayBtn = document.getElementById('replay-btn');
 
+const loveBtn = document.getElementById('love-btn');
+
 const giftBox = document.getElementById('gift-box');
 const giftLid = document.getElementById('gift-lid');
 const giftMessage = document.getElementById('gift-message');
@@ -226,6 +228,19 @@ finaleBtn.addEventListener('click', () => {
     switchScreen('gallery', 'finale');
 });
 
+// Finale → Love Heart
+loveBtn.addEventListener('click', () => {
+
+    stopFinaleEffects();
+
+    switchScreen('finale', 'love');
+
+    setTimeout(() => {
+        window.startLoveAnimation();
+    }, 500);
+
+});
+
 // Replay → back to Welcome
 replayBtn.addEventListener('click', () => {
     stopFinaleEffects();
@@ -293,3 +308,761 @@ document.addEventListener('keydown', (e) => {
 console.log('%c🎂 Happy Birthday! 🎂', 'font-size: 24px; color: #c44dff; font-weight: bold;');
 console.log('%cThis website was made with ❤️', 'font-size: 14px; color: #ff6b9d;');
 
+/* ============================================
+   ❤️ PYTHON HEART ANIMATION
+   Converted from Pygame to JavaScript Canvas
+   ============================================ */
+
+const loveScreen = document.getElementById('love-screen');
+const loveCanvas = document.getElementById('love-canvas');
+
+if (loveScreen && loveCanvas) {
+
+    const loveCtx = loveCanvas.getContext('2d');
+
+    const LOVE_WORDS = [
+        'i love you',
+        'I LOVE YOU',
+        'love you'
+    ];
+
+    const LOVE_COLORS = [
+        [255, 70, 35],
+        [255, 130, 45],
+        [255, 45, 45],
+        [255, 190, 90],
+        [255, 90, 65]
+    ];
+
+    const LOVE_OUTLINE_COUNT = 160;
+    const LOVE_FILL_COUNT = 130;
+
+    let loveParticles = [];
+
+    let loveFrame = 0;
+
+    let loveScale = 24;
+
+    let loveFillStartFrame = 0;
+
+    let loveCenterStartFrame = 0;
+
+    let loveRunning = false;
+
+    let loveAnimationStarted = false;
+
+    const loveTitle =
+        loveScreen.querySelector('.love-title');
+
+
+    /* ========================================
+       RESIZE CANVAS
+       ======================================== */
+
+    function resizeLoveCanvas() {
+
+        const dpr =
+            Math.min(
+                window.devicePixelRatio || 1,
+                2
+            );
+
+        loveCanvas.width =
+            window.innerWidth * dpr;
+
+        loveCanvas.height =
+            window.innerHeight * dpr;
+
+        loveCanvas.style.width =
+            window.innerWidth + 'px';
+
+        loveCanvas.style.height =
+            window.innerHeight + 'px';
+
+        loveCtx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+        loveScale =
+            Math.min(
+                window.innerWidth / 80,
+                window.innerHeight / 42
+            );
+    }
+
+
+    /* ========================================
+       HEART EQUATION
+       SAME AS YOUR PYTHON CODE
+       ======================================== */
+
+    function heartXY(t) {
+
+        const x =
+            16 *
+            Math.pow(
+                Math.sin(t),
+                3
+            );
+
+        const y =
+            13 *
+            Math.cos(t)
+
+            - 5 *
+            Math.cos(
+                2 * t
+            )
+
+            - 2 *
+            Math.cos(
+                3 * t
+            )
+
+            - Math.cos(
+                4 * t
+            );
+
+        return {
+            x: x,
+            y: -y
+        };
+    }
+
+
+    /* ========================================
+       SCREEN COORDINATES
+       ======================================== */
+
+    function toScreen(x, y) {
+
+        return {
+
+            x:
+                x *
+                loveScale +
+
+                window.innerWidth /
+                2,
+
+            y:
+                y *
+                loveScale +
+
+                window.innerHeight /
+                2 +
+
+                60
+        };
+    }
+
+
+    /* ========================================
+       PARTICLE CLASS
+       ======================================== */
+
+    class LoveParticle {
+
+        constructor(
+            x,
+            y,
+            order,
+            kind
+        ) {
+
+            this.x = x;
+
+            this.y = y;
+
+            this.order =
+                order;
+
+            this.kind =
+                kind;
+
+            this.word =
+                LOVE_WORDS[
+                    Math.floor(
+                        Math.random() *
+                        LOVE_WORDS.length
+                    )
+                ];
+
+            this.color =
+                LOVE_COLORS[
+                    Math.floor(
+                        Math.random() *
+                        LOVE_COLORS.length
+                    )
+                ];
+
+            this.alpha = 0;
+
+            this.flicker =
+                Math.random() *
+                Math.PI *
+                2;
+
+            this.delay = 0;
+
+            this.sizeMult =
+                0.85 +
+                Math.random() *
+                0.30;
+
+        }
+    }
+
+
+    /* ========================================
+       BUILD HEART OUTLINE
+       ======================================== */
+
+    function buildOutlineParticles() {
+
+        const particles = [];
+
+        const placed = [];
+
+        const minGap = 34;
+
+        for (
+            let i = 0;
+            i < LOVE_OUTLINE_COUNT;
+            i++
+        ) {
+
+            const t =
+                (
+                    i /
+                    LOVE_OUTLINE_COUNT
+                ) *
+                Math.PI *
+                2;
+
+            const heart =
+                heartXY(t);
+
+            const point =
+                toScreen(
+                    heart.x,
+                    heart.y
+                );
+
+            let tooClose =
+                false;
+
+            for (
+                const p
+                of placed
+            ) {
+
+                if (
+                    Math.hypot(
+                        point.x - p.x,
+                        point.y - p.y
+                    ) < minGap
+                ) {
+
+                    tooClose = true;
+
+                    break;
+                }
+            }
+
+            if (tooClose)
+                continue;
+
+            placed.push(point);
+
+            particles.push(
+                new LoveParticle(
+                    point.x,
+                    point.y,
+                    i,
+                    'outline'
+                )
+            );
+        }
+
+        return particles;
+    }
+
+
+    /* ========================================
+       BUILD HEART FILL
+       ======================================== */
+
+    function buildFillParticles() {
+
+        const particles = [];
+
+        const placed = [];
+
+        let attempts = 0;
+
+        const maxAttempts =
+            LOVE_FILL_COUNT * 80;
+
+        const minGap = 46;
+
+        while (
+            particles.length <
+            LOVE_FILL_COUNT &&
+
+            attempts <
+            maxAttempts
+        ) {
+
+            attempts++;
+
+            const t =
+                Math.random() *
+                Math.PI *
+                2;
+
+            const r =
+                Math.random() *
+                0.86;
+
+            const heart =
+                heartXY(t);
+
+            const point =
+                toScreen(
+                    heart.x * r,
+                    heart.y * r
+                );
+
+            let tooClose =
+                false;
+
+            for (
+                const p
+                of placed
+            ) {
+
+                if (
+                    Math.hypot(
+                        point.x - p.x,
+                        point.y - p.y
+                    ) < minGap
+                ) {
+
+                    tooClose = true;
+
+                    break;
+                }
+            }
+
+            if (tooClose)
+                continue;
+
+            placed.push(point);
+
+            particles.push(
+                new LoveParticle(
+                    point.x,
+                    point.y,
+                    particles.length,
+                    'fill'
+                )
+            );
+        }
+
+        return particles;
+    }
+
+
+    /* ========================================
+       CREATE ALL PARTICLES
+       ======================================== */
+
+    function buildLoveHeart() {
+
+        const outline =
+            buildOutlineParticles();
+
+        const fill =
+            buildFillParticles();
+
+        const outlineSpan =
+            outline.length
+                ? Math.max(
+                    ...outline.map(
+                        p => p.order
+                    )
+                )
+                : 0;
+
+        const framePerStep =
+            1.6;
+
+
+        /* Outline timing */
+
+        outline.forEach(
+            p => {
+
+                p.delay =
+                    Math.floor(
+                        p.order *
+                        framePerStep
+                    );
+
+            }
+        );
+
+
+        /* Fill timing */
+
+        loveFillStartFrame =
+            Math.floor(
+                outlineSpan *
+                framePerStep
+            ) + 30;
+
+        fill.forEach(
+            p => {
+
+                p.delay =
+                    loveFillStartFrame +
+                    p.order;
+
+            }
+        );
+
+
+        loveParticles =
+            outline.concat(fill);
+
+
+        loveCenterStartFrame =
+            loveFillStartFrame +
+            200;
+    }
+
+
+    /* ========================================
+       DRAW GLOWING TEXT
+       ======================================== */
+
+    function drawLoveParticle(p) {
+
+        if (p.alpha <= 0)
+            return;
+
+        const rgb =
+            `${p.color[0]}, ${p.color[1]}, ${p.color[2]}`;
+
+        const fontSize =
+            (
+                p.kind === 'outline'
+                    ? 20
+                    : 17
+            ) *
+            p.sizeMult;
+
+        loveCtx.save();
+
+
+        /* Large glow */
+
+        loveCtx.font =
+            `bold ${fontSize}px Arial`;
+
+        loveCtx.textAlign =
+            'center';
+
+        loveCtx.textBaseline =
+            'middle';
+
+        loveCtx.shadowColor =
+            `rgb(${rgb})`;
+
+        loveCtx.shadowBlur =
+            20;
+
+        loveCtx.globalAlpha =
+            (
+                p.alpha /
+                255
+            ) *
+            0.15;
+
+        loveCtx.fillStyle =
+            `rgb(${rgb})`;
+
+        loveCtx.fillText(
+            p.word,
+            p.x,
+            p.y
+        );
+
+
+        /* Small glow */
+
+        loveCtx.shadowBlur =
+            9;
+
+        loveCtx.globalAlpha =
+            (
+                p.alpha /
+                255
+            ) *
+            0.35;
+
+        loveCtx.fillText(
+            p.word,
+            p.x,
+            p.y
+        );
+
+
+        /* Main text */
+
+        loveCtx.shadowBlur =
+            4;
+
+        loveCtx.globalAlpha =
+            p.alpha /
+            255;
+
+        loveCtx.fillText(
+            p.word,
+            p.x,
+            p.y
+        );
+
+        loveCtx.restore();
+    }
+
+
+    /* ========================================
+       DRAW FRAME
+       ======================================== */
+
+    function drawLoveFrame() {
+
+        loveCtx.clearRect(
+            0,
+            0,
+            window.innerWidth,
+            window.innerHeight
+        );
+
+
+        /* Draw particles */
+
+        loveParticles.forEach(
+            p => {
+
+                if (
+                    loveFrame >
+                    p.delay
+                ) {
+
+                    if (
+                        p.alpha <
+                        255
+                    ) {
+
+                        p.alpha =
+                            Math.min(
+                                255,
+
+                                p.alpha +
+                                14 +
+                                Math.floor(
+                                    Math.random() *
+                                    5
+                                )
+                            );
+                    }
+                }
+
+
+                let flicker =
+                    1;
+
+                if (
+                    p.alpha >=
+                    255
+                ) {
+
+                    flicker =
+                        0.75 +
+                        0.25 *
+                        Math.sin(
+                            loveFrame *
+                            0.4 +
+                            p.flicker
+                        );
+                }
+
+
+                const originalAlpha =
+                    p.alpha;
+
+                p.alpha =
+                    originalAlpha *
+                    flicker;
+
+                drawLoveParticle(p);
+
+                p.alpha =
+                    originalAlpha;
+            }
+        );
+
+
+        /* ====================================
+           CENTER TEXT
+        ==================================== */
+
+        if (
+            loveFrame >
+            loveCenterStartFrame
+        ) {
+
+            const progress =
+                Math.min(
+                    1,
+
+                    (
+                        loveFrame -
+                        loveCenterStartFrame
+                    ) / 60
+                );
+
+
+            const alpha =
+                1 -
+                Math.exp(
+                    -progress * 8
+                );
+
+
+            const pulse =
+                1 +
+                0.05 *
+                Math.sin(
+                    loveFrame *
+                    0.5
+                );
+
+
+            loveTitle.style.opacity =
+                alpha;
+
+            loveTitle.style.transform =
+                `scale(${pulse})`;
+
+        }
+    }
+
+
+    /* ========================================
+       ANIMATION LOOP
+       ======================================== */
+
+    function loveAnimationLoop() {
+
+        if (!loveRunning)
+            return;
+
+        loveFrame++;
+
+        drawLoveFrame();
+
+        requestAnimationFrame(
+            loveAnimationLoop
+        );
+    }
+
+
+    /* ========================================
+       START LOVE ANIMATION
+       ======================================== */
+
+    function startLoveAnimation() {
+
+        if (
+            loveAnimationStarted
+        )
+            return;
+
+        loveAnimationStarted =
+            true;
+
+        loveRunning =
+            true;
+
+        loveFrame =
+            0;
+
+        loveTitle.style.opacity =
+            '0';
+
+        loveTitle.style.transform =
+            'scale(1)';
+
+        resizeLoveCanvas();
+
+        buildLoveHeart();
+
+        requestAnimationFrame(
+            loveAnimationLoop
+        );
+    }
+
+
+    /* ========================================
+       STOP LOVE ANIMATION
+       ======================================== */
+
+    function stopLoveAnimation() {
+
+        loveRunning =
+            false;
+    }
+
+
+    /* ========================================
+       RESIZE
+       ======================================== */
+
+    window.addEventListener(
+        'resize',
+        () => {
+
+            if (
+                loveScreen.classList
+                    .contains('active')
+            ) {
+
+                resizeLoveCanvas();
+
+                buildLoveHeart();
+
+            }
+
+        }
+    );
+
+
+    /* ========================================
+       MAKE LOVE SCREEN AVAILABLE
+       ======================================== */
+
+    window.startLoveAnimation =
+        startLoveAnimation;
+
+    window.stopLoveAnimation =
+        stopLoveAnimation;
+}
