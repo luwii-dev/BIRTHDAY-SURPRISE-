@@ -82,54 +82,105 @@
     </section>
 
     <!-- ===================== PHOTO GALLERY ===================== -->
-    <section id="gallery-screen" class="screen">
-        <div class="gallery-content">
-            <h2 class="section-title">📸 Our Memories Together 📸</h2>
-            <p class="gallery-subtitle">Every moment with you is a treasure</p>
-            <div class="gallery-grid" id="gallery-grid">
-                <div class="gallery-item" style="--delay: 0.1s">
-                    <div class="polaroid">
-                        <img src="album/pic1.jpg" alt="Memory #1">
-                        <p class="caption">Valentine's Day ❤️</p>
-                    </div>
-                </div>
-                <div class="gallery-item" style="--delay: 0.2s">
-                    <div class="polaroid">
-                        <img src="album/pic2.jpg" alt="Memory #2">
-                        <p class="caption">Best Photograph! 💕</p>
-                    </div>
-                </div>
-                <div class="gallery-item" style="--delay: 0.3s">
-                    <div class="polaroid">
-                        <img src="album/pic3.jpg" alt="Memory #3">
-                        <p class="caption">So Pretty Ai! 💖</p>
-                    </div>
-                </div>
-                <div class="gallery-item" style="--delay: 0.4s">
-                    <div class="polaroid">
-                        <img src="album/pic4.jpg" alt="Memory #4">
-                        <p class="caption">Q-Park Together 💕</p>
-                    </div>
-                </div>
-                <div class="gallery-item" style="--delay: 0.5s">
-                    <div class="polaroid">
-                        <img src="album/pic5.jpg" alt="Memory #5">
-                        <p class="caption">Engineering Night 2025 💖</p>
-                    </div>
-                </div>
-                <div class="gallery-item" style="--delay: 0.6s">
-                    <div class="polaroid">
-                        <img src="album/pic6.jpg" alt="Memory #6">
-                        <p class="caption">First Official Date 💕</p>
-                    </div>
+<section id="gallery-screen" class="screen">
+    <div class="gallery-content">
+
+        <h2 class="section-title">📸 Our Memories Together 📸</h2>
+
+        <p class="gallery-subtitle">
+            Every moment with you is a treasure
+        </p>
+
+        <div class="gallery-grid" id="gallery-grid">
+
+            <!-- MEMORY 1 -->
+            <div class="gallery-item" style="--delay: 0.1s">
+                <div class="polaroid memory-card"
+                    onclick="openMemoryAlbum(1)">
+                    <img src="album/pic1.jpg" alt="Valentine's Day">
+                    <p class="caption">Valentine's Day ❤️</p>
                 </div>
             </div>
-            <button class="magic-btn" id="finale-btn">
-                <span class="btn-icon">🎆</span>
-                <span class="btn-text">Final Surprise</span>
-            </button>
+
+            <!-- MEMORY 2 -->
+            <div class="gallery-item" style="--delay: 0.2s">
+                <div class="polaroid memory-card"
+                    onclick="openMemoryAlbum(2)">
+                    <img src="album/pic2.jpg" alt="Best Photograph">
+                    <p class="caption">Best Photograph! 💕</p>
+                </div>
+            </div>
+
+            <!-- MEMORY 3 -->
+            <div class="gallery-item" style="--delay: 0.3s">
+                <div class="polaroid memory-card"
+                    onclick="openMemoryAlbum(3)">
+                    <img src="album/pic3.jpg" alt="Pretty Ai">
+                    <p class="caption">So Pretty Ai! 💖</p>
+                </div>
+            </div>
+
+            <!-- MEMORY 4 -->
+            <div class="gallery-item" style="--delay: 0.4s">
+                <div class="polaroid memory-card"
+                    onclick="openMemoryAlbum(4)">
+                    <img src="album/pic4.jpg" alt="Q-Park Together">
+                    <p class="caption">Q-Park Together 💕</p>
+                </div>
+            </div>
+
+            <!-- MEMORY 5 -->
+            <div class="gallery-item" style="--delay: 0.5s">
+                <div class="polaroid memory-card"
+                    onclick="openMemoryAlbum(5)">
+                    <img src="album/pic5.jpg" alt="Engineering Night">
+                    <p class="caption">Engineering Night 2025 💖</p>
+                </div>
+            </div>
+
+            <!-- MEMORY 6 -->
+            <div class="gallery-item" style="--delay: 0.6s">
+                <div class="polaroid memory-card"
+                    onclick="openMemoryAlbum(6)">
+                    <img src="album/pic6.jpg" alt="First Official Date">
+                    <p class="caption">First Official Date 💕</p>
+                </div>
+            </div>
+
         </div>
-    </section>
+
+        <button class="magic-btn" id="finale-btn">
+            <span class="btn-icon">🎆</span>
+            <span class="btn-text">Final Surprise</span>
+        </button>
+
+    </div>
+</section>
+
+<!-- ===================== MEMORY ALBUM SCREEN ===================== -->
+<section id="memory-screen" class="screen">
+
+    <div class="memory-album-content">
+
+        <button class="back-btn" id="back-to-gallery">
+            ← Back to Memories
+        </button>
+
+        <h2 class="section-title" id="memory-album-title">
+            💕 Our Memory 💕
+        </h2>
+
+        <p class="gallery-subtitle" id="memory-album-subtitle">
+            More moments to remember
+        </p>
+
+        <div class="memory-grid" id="memory-grid">
+            <!-- Photos will be inserted by JavaScript -->
+        </div>
+
+    </div>
+
+</section>
 
     <!-- ===================== FINAL SURPRISE SCREEN ===================== -->
     <section id="finale-screen" class="screen">
@@ -161,10 +212,6 @@
     <span class="btn-icon">❤️</span>
     <span class="btn-text">One Last Surprise</span>
 </button>
-                <button class="magic-btn replay-btn" id="replay-btn">
-                    <span class="btn-icon">🔄</span>
-                    <span class="btn-text">Replay</span>
-                </button>
             </div>
         </div>
         <div id="finale-confetti"></div>
@@ -173,7 +220,7 @@
 <!-- ===================== LOVE HEART FINAL SCREEN ===================== -->
 <section id="love-screen" class="screen">
 
-    <!-- Decorative text at the top -->
+    <!-- Decorative text -->
     <div class="love-top-text">
 
         <div class="love-small-text">
@@ -181,21 +228,33 @@
         </div>
 
         <p class="love-subtitle">
-    Every word in this heart could say “I love you,” but what I truly want you to know is this:<br>
-    I’m grateful for you, thankful for every memory we’ve made, and happy that I get to love you.<br>
-    Happy Birthday, Ai! ❤️
-</p>
+            Every word in this heart could say “I love you,” but what I truly want you to know is this:<br>
+            I’m grateful for you, thankful for every memory we’ve made, and happy that I get to love you.<br>
+            Happy Birthday, Ai! ❤️
+        </p>
 
     </div>
 
-    <!-- Heart animation -->
-    <canvas id="love-canvas"></canvas>
 
-    <div class="love-overlay">
-        <h1 class="love-title">
-            I Love You
-        </h1>
+    <!-- HEART ANIMATION AREA -->
+    <div class="love-animation-area">
+
+        <canvas id="love-canvas"></canvas>
+
+        <div class="love-overlay">
+            <h1 class="love-title">
+                I Love You, Ai!
+            </h1>
+        </div>
+
     </div>
+
+
+    <!-- REPLAY IS NOW OUTSIDE THE ANIMATION -->
+    <button class="magic-btn love-replay-btn" id="love-replay-btn">
+        <span class="btn-icon">🔄</span>
+        <span class="btn-text">Replay</span>
+    </button>
 
 </section>
 

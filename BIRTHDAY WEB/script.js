@@ -13,8 +13,8 @@ const enterBtn = document.getElementById('enter-btn');
 const continueBtn = document.getElementById('continue-btn');
 const galleryBtn = document.getElementById('gallery-btn');
 const finaleBtn = document.getElementById('finale-btn');
-const replayBtn = document.getElementById('replay-btn');
 
+const loveReplayBtn = document.getElementById('love-replay-btn');
 const loveBtn = document.getElementById('love-btn');
 
 const giftBox = document.getElementById('gift-box');
@@ -34,9 +34,121 @@ const finaleConfetti = document.getElementById('finale-confetti');
 const fireworksContainer = document.getElementById('fireworks');
 const finaleHearts = document.getElementById('finale-hearts');
 
+const memoryScreen = document.getElementById('memory-screen');
+const memoryAlbumTitle = document.getElementById('memory-album-title');
+const memoryAlbumSubtitle = document.getElementById('memory-album-subtitle');
+const memoryGrid = document.getElementById('memory-grid');
+const backToGalleryBtn = document.getElementById('back-to-gallery');
+
 // ===== State =====
 let musicPlaying = false;
 let currentScreen = 'welcome';
+
+// ===== MEMORY ALBUM DATA =====
+
+const memoryAlbums = {
+
+    1: {
+        title: "Valentine's Day ❤️",
+        subtitle: "A special day with you 💕",
+        photos: [
+            "album/album1/pic1.jpg",
+            "album/album1/pic2.jpg",
+            "album/album1/pic3.jpg",
+            "album/album1/pic4.jpg"
+        ]
+    },
+
+    2: {
+        title: "Best Photograph! 💕",
+        subtitle: "Days worth remembering!",
+        photos: [
+            "album/album2/pic1.jpg",
+            "album/album2/pic2.jpg",
+            "album/album2/pic3.jpg",
+            "album/album2/pic4.jpg"
+        ]
+    },
+
+    3: {
+        title: "So Pretty Ai! 💖",
+        subtitle: "One of my favorite pictures of you",
+        photos: [
+            "album/album3/photo1.jpg",
+            "album/album3/photo2.jpg",
+            "album/album3/photo3.jpg",
+            "album/album3/photo4.jpg"
+        ]
+    },
+
+    4: {
+        title: "Q-Park Together 💕",
+        subtitle: "It was your first time right here.",
+        photos: [
+            "album/album4/pic1.jpg",
+            "album/album4/pic2.jpg",
+            "album/album4/pic3.jpg",
+            "album/album4/pic4.jpg"
+        ]
+    },
+
+    5: {
+        title: "Engineering Night 2025 💖",
+        subtitle: "A night worth remembering",
+        photos: [
+            "album/album5/photo1.jpg",
+            "album/album5/photo2.jpg",
+            "album/album5/photo3.jpg",
+            "album/album5/photo4.jpg"
+        ]
+    },
+
+    6: {
+        title: "First Official Date 💕",
+        subtitle: "Where our special memories began",
+        photos: [
+            "album/album6/photo1.jpg",
+            "album/album6/photo2.jpg",
+            "album/album6/photo3.jpg",
+            "album/album6/photo4.jpg"
+        ]
+    }
+
+};
+
+// ===== OPEN MEMORY ALBUM =====
+
+function openMemoryAlbum(albumNumber) {
+
+    const album = memoryAlbums[albumNumber];
+
+    if (!album) return;
+
+    memoryAlbumTitle.textContent = album.title;
+    memoryAlbumSubtitle.textContent = album.subtitle;
+
+    memoryGrid.innerHTML = '';
+
+    album.photos.forEach((photo, index) => {
+
+        const item = document.createElement('div');
+
+        item.classList.add('memory-photo');
+
+        item.style.animationDelay = `${index * 0.1}s`;
+
+        item.innerHTML = `
+            <div class="memory-photo-card">
+                <img src="${photo}" alt="${album.title} photo ${index + 1}">
+            </div>
+        `;
+
+        memoryGrid.appendChild(item);
+
+    });
+
+    switchScreen('gallery', 'memory');
+}
 
 // ===== Screen Navigation =====
 function switchScreen(from, to) {
@@ -223,6 +335,11 @@ galleryBtn.addEventListener('click', () => {
     switchScreen('letter', 'gallery');
 });
 
+// ===== MEMORY ALBUM → GALLERY =====
+backToGalleryBtn.addEventListener('click', () => {
+    switchScreen('memory', 'gallery');
+});
+
 // Gallery → Finale
 finaleBtn.addEventListener('click', () => {
     switchScreen('gallery', 'finale');
@@ -241,25 +358,26 @@ loveBtn.addEventListener('click', () => {
 
 });
 
-// Replay → back to Welcome
-replayBtn.addEventListener('click', () => {
-    stopFinaleEffects();
+// Love Heart → Replay
+loveReplayBtn.addEventListener('click', () => {
+
+    window.stopLoveAnimation();
+
+    switchScreen('love', 'welcome');
 
     // Reset gift
     giftLid.classList.remove('open');
     giftMessage.classList.add('hidden');
 
-    // Reset envelope & letter
+    // Reset envelope and letter
     envelope.classList.remove('opened', 'hidden');
     letterPaper.classList.add('hidden');
 
-    // Clear confetti & effects
+    // Clear effects
     confettiContainer.innerHTML = '';
     finaleConfetti.innerHTML = '';
     fireworksContainer.innerHTML = '';
     finaleHearts.innerHTML = '';
-
-    switchScreen('finale', 'welcome');
 });
 
 // ===== Cursor sparkle trail =====
@@ -361,40 +479,51 @@ if (loveScreen && loveCanvas) {
 
     function resizeLoveCanvas() {
 
-        const dpr =
-            Math.min(
-                window.devicePixelRatio || 1,
-                2
-            );
+    const animationArea =
+        loveCanvas.parentElement;
 
-        loveCanvas.width =
-            window.innerWidth * dpr;
+    const rect =
+        animationArea.getBoundingClientRect();
 
-        loveCanvas.height =
-            window.innerHeight * dpr;
-
-        loveCanvas.style.width =
-            window.innerWidth + 'px';
-
-        loveCanvas.style.height =
-            window.innerHeight + 'px';
-
-        loveCtx.setTransform(
-            dpr,
-            0,
-            0,
-            dpr,
-            0,
-            0
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
         );
 
-        loveScale =
-            Math.min(
-                window.innerWidth / 80,
-                window.innerHeight / 42
-            );
-    }
+    loveCanvas.width =
+        rect.width * dpr;
 
+    loveCanvas.height =
+        rect.height * dpr;
+
+    loveCanvas.style.width =
+        rect.width + 'px';
+
+    loveCanvas.style.height =
+        rect.height + 'px';
+
+    loveCtx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+    loveCanvas._cssWidth =
+        rect.width;
+
+    loveCanvas._cssHeight =
+        rect.height;
+
+    loveScale =
+        Math.min(
+            rect.width / 60,
+            rect.height / 30
+        );
+}
 
     /* ========================================
        HEART EQUATION
@@ -441,25 +570,20 @@ if (loveScreen && loveCanvas) {
 
     function toScreen(x, y) {
 
-        return {
+    return {
 
-            x:
-                x *
-                loveScale +
+        x:
+            x *
+            loveScale +
+            loveCanvas._cssWidth / 2,
 
-                window.innerWidth /
-                2,
-
-            y:
-                y *
-                loveScale +
-
-                window.innerHeight /
-                2 +
-
-                60
-        };
-    }
+        y:
+            y *
+            loveScale +
+            loveCanvas._cssHeight / 2 +
+            20
+    };
+}
 
 
     /* ========================================
@@ -852,8 +976,8 @@ if (loveScreen && loveCanvas) {
         loveCtx.clearRect(
             0,
             0,
-            window.innerWidth,
-            window.innerHeight
+            loveCanvas._cssWidth,
+            loveCanvas._cssHeight
         );
 
 
@@ -960,11 +1084,17 @@ if (loveScreen && loveCanvas) {
             loveTitle.style.opacity =
                 alpha;
 
-            loveTitle.style.transform =
-                `scale(${pulse})`;
+            const heartCenterOffset =
+                loveScale * 2.54 - 5;
 
+            loveTitle.style.top =
+                `calc(50% + ${heartCenterOffset}px)`;
+
+            loveTitle.style.transform =
+                `translate(-50%, -50%) scale(${pulse})`;
+
+            }
         }
-    }
 
 
     /* ========================================
@@ -1009,8 +1139,14 @@ if (loveScreen && loveCanvas) {
         loveTitle.style.opacity =
             '0';
 
+        const heartCenterOffset =
+            loveScale * 2.54 - 5;
+
+        loveTitle.style.top =
+            `calc(50% + ${heartCenterOffset}px)`;
+
         loveTitle.style.transform =
-            'scale(1)';
+            'translate(-50%, -50%) scale(1)';
 
         resizeLoveCanvas();
 
@@ -1022,15 +1158,29 @@ if (loveScreen && loveCanvas) {
     }
 
 
-    /* ========================================
-       STOP LOVE ANIMATION
-       ======================================== */
+   /* ========================================
+   STOP LOVE ANIMATION
+   ======================================== */
 
-    function stopLoveAnimation() {
+function stopLoveAnimation() {
 
-        loveRunning =
-            false;
-    }
+    loveRunning = false;
+
+    loveAnimationStarted = false;
+
+    loveFrame = 0;
+
+    loveTitle.style.opacity = '0';
+
+    loveTitle.style.transform = 'scale(1)';
+
+    loveCtx.clearRect(
+        0,
+        0,
+        window.innerWidth,
+        window.innerHeight
+    );
+}
 
 
     /* ========================================
