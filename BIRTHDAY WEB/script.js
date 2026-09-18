@@ -74,10 +74,10 @@ const memoryAlbums = {
         title: "So Pretty Ai! 💖",
         subtitle: "One of my favorite pictures of you",
         photos: [
-            "album/album3/photo1.jpg",
-            "album/album3/photo2.jpg",
-            "album/album3/photo3.jpg",
-            "album/album3/photo4.jpg"
+            "album/album3/pic1.jpg",
+            "album/album3/pic2.jpg",
+            "album/album3/pic3.jpg",
+            "album/album3/pic4.jpg"
         ]
     },
 
@@ -96,10 +96,10 @@ const memoryAlbums = {
         title: "Engineering Night 2025 💖",
         subtitle: "A night worth remembering",
         photos: [
-            "album/album5/photo1.jpg",
-            "album/album5/photo2.jpg",
-            "album/album5/photo3.jpg",
-            "album/album5/photo4.jpg"
+            "album/album5/pic1.jpg",
+            "album/album5/pic2.jpg",
+            "album/album5/pic3.jpg",
+            "album/album5/pic4.jpg"
         ]
     },
 
@@ -107,10 +107,10 @@ const memoryAlbums = {
         title: "First Official Date 💕",
         subtitle: "Where our special memories began",
         photos: [
-            "album/album6/photo1.jpg",
-            "album/album6/photo2.jpg",
-            "album/album6/photo3.jpg",
-            "album/album6/photo4.jpg"
+            "album/album6/pic1.jpg",
+            "album/album6/pic2.jpg",
+            "album/album6/pic3.jpg",
+            "album/album6/pic4.jpg"
         ]
     }
 
