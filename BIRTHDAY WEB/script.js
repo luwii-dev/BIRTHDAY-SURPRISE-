@@ -40,17 +40,30 @@ const memoryAlbumSubtitle = document.getElementById('memory-album-subtitle');
 const memoryGrid = document.getElementById('memory-grid');
 const backToGalleryBtn = document.getElementById('back-to-gallery');
 
+const secretBtn = document.getElementById('secret-btn');
+const videoOverlay = document.getElementById('video-overlay');
+const videoCloseBtn = document.getElementById('video-close');
+const surpriseVideo = document.getElementById('surprise-video');
+
+// ===== PERSONAL SETTINGS (edit these!) =====
+// Her age: set a number (e.g. 21) and the finale shows "Turning 21!".
+// Leave as null to keep just the 🎂.
+const HER_AGE = null;
+
 // ===== State =====
 let musicPlaying = false;
 let currentScreen = 'welcome';
 
 // ===== MEMORY ALBUM DATA =====
 
+// Each album has 4 photos. Put a short personal note for each photo in "notes"
+// (same order as the photos). Empty "" = no note shown under that photo.
 const memoryAlbums = {
 
     1: {
         title: "Valentine's Day ❤️",
         subtitle: "A special day with you 💕",
+        notes: ["", "", "", ""],
         photos: [
             "album/album1/pic1.jpg",
             "album/album1/pic2.jpg",
@@ -62,6 +75,7 @@ const memoryAlbums = {
     2: {
         title: "Best Photograph! 💕",
         subtitle: "Days worth remembering!",
+        notes: ["", "", "", ""],
         photos: [
             "album/album2/pic1.jpg",
             "album/album2/pic2.jpg",
@@ -73,6 +87,7 @@ const memoryAlbums = {
     3: {
         title: "So Pretty Ai! 💖",
         subtitle: "One of my favorite pictures of you",
+        notes: ["", "", "", ""],
         photos: [
             "album/album3/pic1.jpg",
             "album/album3/pic2.jpg",
@@ -84,6 +99,7 @@ const memoryAlbums = {
     4: {
         title: "Q-Park Together 💕",
         subtitle: "It was your first time right here.",
+        notes: ["", "", "", ""],
         photos: [
             "album/album4/pic1.jpg",
             "album/album4/pic2.jpg",
@@ -95,6 +111,7 @@ const memoryAlbums = {
     5: {
         title: "Engineering Night 2025 💖",
         subtitle: "A night worth remembering",
+        notes: ["", "", "", ""],
         photos: [
             "album/album5/pic1.jpg",
             "album/album5/pic2.jpg",
@@ -106,6 +123,7 @@ const memoryAlbums = {
     6: {
         title: "First Official Date 💕",
         subtitle: "Where our special memories began",
+        notes: ["", "", "", ""],
         photos: [
             "album/album6/pic1.jpg",
             "album/album6/pic2.jpg",
@@ -137,9 +155,14 @@ function openMemoryAlbum(albumNumber) {
 
         item.style.animationDelay = `${index * 0.1}s`;
 
+        const noteText = album.notes && album.notes[index];
+        const note = noteText ? `<p class="memory-note">${noteText}</p>` : '';
+
         item.innerHTML = `
             <div class="memory-photo-card">
-                <img src="${photo}" alt="${album.title} photo ${index + 1}">
+                <img src="${photo}" alt="${album.title} photo ${index + 1}"
+                     onerror="console.warn('Missing photo:', this.src); this.closest('.memory-photo').remove();">
+                ${note}
             </div>
         `;
 
@@ -272,18 +295,40 @@ function stopFinaleEffects() {
 }
 
 // ===== Music Control =====
-musicBtn.addEventListener('click', () => {
-    if (bgMusic.src || bgMusic.querySelector('source')) {
-        if (musicPlaying) {
-            bgMusic.pause();
-            musicIcon.textContent = '🔇';
-            musicBtn.classList.remove('playing');
+function fadeMusicTo(target, step = 0.03) {
+    const fade = setInterval(() => {
+        const diff = target - bgMusic.volume;
+        if (Math.abs(diff) <= step) {
+            bgMusic.volume = target;
+            clearInterval(fade);
         } else {
-            bgMusic.play().catch(() => {});
-            musicIcon.textContent = '🎵';
-            musicBtn.classList.add('playing');
+            bgMusic.volume = Math.max(0, Math.min(1, bgMusic.volume + Math.sign(diff) * step));
         }
-        musicPlaying = !musicPlaying;
+    }, 80);
+}
+
+function startMusic() {
+    bgMusic.volume = 0;
+    return bgMusic.play().then(() => {
+        musicPlaying = true;
+        musicIcon.textContent = '🎵';
+        musicBtn.classList.add('playing');
+        fadeMusicTo(0.6);
+    }).catch((err) => {
+        console.warn('Music could not start (check the file name/path in bg.song/):', err);
+    });
+}
+
+musicBtn.addEventListener('click', () => {
+    if (!videoOverlay.classList.contains('hidden')) return;   // video is playing
+
+    if (musicPlaying) {
+        bgMusic.pause();
+        musicPlaying = false;
+        musicIcon.textContent = '🔇';
+        musicBtn.classList.remove('playing');
+    } else {
+        startMusic();
     }
 });
 
@@ -293,14 +338,8 @@ musicBtn.addEventListener('click', () => {
 enterBtn.addEventListener('click', () => {
     switchScreen('welcome', 'gift');
 
-    // Try to play music
-    if (bgMusic.src || bgMusic.querySelector('source')) {
-        bgMusic.play().then(() => {
-            musicPlaying = true;
-            musicIcon.textContent = '🎵';
-            musicBtn.classList.add('playing');
-        }).catch(() => {});
-    }
+    // Start music on this first tap (browsers allow audio after a click)
+    if (!musicPlaying) startMusic();
 });
 
 // Gift box click → reveal surprise
@@ -327,8 +366,89 @@ envelope.addEventListener('click', () => {
     setTimeout(() => {
         envelope.classList.add('hidden');
         letterPaper.classList.remove('hidden');
+
+        // Start typing once the paper has faded in
+        setTimeout(typeLetter, 900);
     }, 600);
 });
+
+// ===== Typewriter Letter =====
+const typedParas = Array.from(document.querySelectorAll('.letter-body p:not(.letter-signature)'));
+const letterSignature = document.querySelector('.letter-signature');
+const letterFullText = typedParas.map(p => Array.from(p.textContent.trim()));
+
+let letterTimer = null;
+let letterTyping = false;
+let letterDone = false;
+
+function resetLetter() {
+    clearTimeout(letterTimer);
+    letterTyping = false;
+    letterDone = false;
+    typedParas.forEach(p => {
+        p.textContent = '';
+        p.classList.remove('typing-now');
+    });
+    letterSignature.classList.add('letter-pending');
+    galleryBtn.classList.add('letter-pending');
+}
+
+function finishLetter() {
+    clearTimeout(letterTimer);
+    typedParas.forEach((p, i) => {
+        p.textContent = letterFullText[i].join('');
+        p.classList.remove('typing-now');
+    });
+    letterSignature.classList.remove('letter-pending');
+    galleryBtn.classList.remove('letter-pending');
+    letterTyping = false;
+    letterDone = true;
+}
+
+function typeLetter() {
+    if (letterTyping || letterDone) return;
+    letterTyping = true;
+
+    let para = 0;
+    let char = 0;
+
+    function tick() {
+        if (para >= typedParas.length) {
+            finishLetter();
+            return;
+        }
+
+        const el = typedParas[para];
+        const chars = letterFullText[para];
+
+        if (char === 0) {
+            typedParas.forEach(p => p.classList.remove('typing-now'));
+            el.classList.add('typing-now');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        char++;
+        el.textContent = chars.slice(0, char).join('');
+
+        if (char >= chars.length) {
+            para++;
+            char = 0;
+            letterTimer = setTimeout(tick, 500);        // pause between paragraphs
+        } else {
+            const last = chars[char - 1];
+            letterTimer = setTimeout(tick, /[.!?,]/.test(last) ? 170 : 28);
+        }
+    }
+
+    tick();
+}
+
+// Tap the letter while it's typing to show it all at once
+letterPaper.addEventListener('click', () => {
+    if (letterTyping) finishLetter();
+});
+
+resetLetter();
 
 // Letter → Gallery
 galleryBtn.addEventListener('click', () => {
@@ -356,7 +476,65 @@ loveBtn.addEventListener('click', () => {
         window.startLoveAnimation();
     }, 500);
 
+    scheduleSecretButton();
+
 });
+
+// ===== Hidden last message =====
+let secretTimer = null;
+
+function scheduleSecretButton() {
+    clearTimeout(secretTimer);
+    secretTimer = setTimeout(() => {
+        secretBtn.classList.remove('hidden');
+    }, 9000);
+}
+
+let musicWasPlaying = false;
+
+function openVideo() {
+    // Pause the background music so the video's sound is clear
+    musicWasPlaying = musicPlaying;
+    if (musicPlaying) {
+        bgMusic.pause();
+        musicPlaying = false;
+        musicIcon.textContent = '🔇';
+        musicBtn.classList.remove('playing');
+    }
+
+    videoOverlay.classList.remove('hidden');
+    surpriseVideo.currentTime = 0;
+    surpriseVideo.play().catch((err) => {
+        console.warn('Video could not play (check video/birthday.mp4):', err);
+        closeVideo();
+    });
+}
+
+function closeVideo() {
+    if (videoOverlay.classList.contains('hidden')) return;
+
+    surpriseVideo.pause();
+    videoOverlay.classList.add('hidden');
+
+    // Bring the music back if it was on before
+    if (musicWasPlaying) startMusic();
+}
+
+function resetSecret() {
+    clearTimeout(secretTimer);
+    secretBtn.classList.add('hidden');
+    surpriseVideo.pause();
+    videoOverlay.classList.add('hidden');
+}
+
+secretBtn.addEventListener('click', () => {
+    secretBtn.classList.add('hidden');
+    openVideo();
+});
+
+videoCloseBtn.addEventListener('click', closeVideo);
+surpriseVideo.addEventListener('ended', closeVideo);
+surpriseVideo.addEventListener('error', closeVideo);   // ignored unless the video is open
 
 // Love Heart → Replay
 loveReplayBtn.addEventListener('click', () => {
@@ -372,6 +550,8 @@ loveReplayBtn.addEventListener('click', () => {
     // Reset envelope and letter
     envelope.classList.remove('opened', 'hidden');
     letterPaper.classList.add('hidden');
+    resetLetter();
+    resetSecret();
 
     // Clear effects
     confettiContainer.innerHTML = '';
@@ -420,6 +600,22 @@ document.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'm') {
         musicBtn.click();
     }
+});
+
+// ===== Age display (finale) =====
+const ageDisplay = document.getElementById('age-display');
+if (HER_AGE && ageDisplay) {
+    ageDisplay.innerHTML = `
+        <span class="age-number">🎂</span>
+        <span class="age-text">Turning ${HER_AGE}!</span>
+    `;
+}
+
+// ===== Warn in the console if a gallery photo is missing =====
+document.querySelectorAll('.gallery-grid img').forEach(img => {
+    const warn = () => console.warn('Missing gallery photo:', img.getAttribute('src'));
+    if (img.complete && img.naturalWidth === 0) warn();
+    img.addEventListener('error', warn);
 });
 
 // ===== Console greeting =====
@@ -479,51 +675,51 @@ if (loveScreen && loveCanvas) {
 
     function resizeLoveCanvas() {
 
-    const animationArea =
-        loveCanvas.parentElement;
+        const animationArea =
+            loveCanvas.parentElement;
 
-    const rect =
-        animationArea.getBoundingClientRect();
+        const rect =
+            animationArea.getBoundingClientRect();
 
-    const dpr =
-        Math.min(
-            window.devicePixelRatio || 1,
-            2
+        const dpr =
+            Math.min(
+                window.devicePixelRatio || 1,
+                2
+            );
+
+        loveCanvas.width =
+            rect.width * dpr;
+
+        loveCanvas.height =
+            rect.height * dpr;
+
+        loveCanvas.style.width =
+            rect.width + 'px';
+
+        loveCanvas.style.height =
+            rect.height + 'px';
+
+        loveCtx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
         );
 
-    loveCanvas.width =
-        rect.width * dpr;
+        loveCanvas._cssWidth =
+            rect.width;
 
-    loveCanvas.height =
-        rect.height * dpr;
+        loveCanvas._cssHeight =
+            rect.height;
 
-    loveCanvas.style.width =
-        rect.width + 'px';
-
-    loveCanvas.style.height =
-        rect.height + 'px';
-
-    loveCtx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
-    );
-
-    loveCanvas._cssWidth =
-        rect.width;
-
-    loveCanvas._cssHeight =
-        rect.height;
-
-    loveScale =
-        Math.min(
-            rect.width / 60,
-            rect.height / 30
-        );
-}
+        loveScale =
+            Math.min(
+                rect.width / 60,
+                rect.height / 30
+            );
+    }
 
     /* ========================================
        HEART EQUATION
@@ -570,20 +766,20 @@ if (loveScreen && loveCanvas) {
 
     function toScreen(x, y) {
 
-    return {
+        return {
 
-        x:
-            x *
-            loveScale +
-            loveCanvas._cssWidth / 2,
+            x:
+                x *
+                loveScale +
+                loveCanvas._cssWidth / 2,
 
-        y:
-            y *
-            loveScale +
-            loveCanvas._cssHeight / 2 +
-            20
-    };
-}
+            y:
+                y *
+                loveScale +
+                loveCanvas._cssHeight / 2 +
+                20
+        };
+    }
 
 
     /* ========================================
@@ -611,18 +807,18 @@ if (loveScreen && loveCanvas) {
 
             this.word =
                 LOVE_WORDS[
-                    Math.floor(
-                        Math.random() *
-                        LOVE_WORDS.length
-                    )
+                Math.floor(
+                    Math.random() *
+                    LOVE_WORDS.length
+                )
                 ];
 
             this.color =
                 LOVE_COLORS[
-                    Math.floor(
-                        Math.random() *
-                        LOVE_COLORS.length
-                    )
+                Math.floor(
+                    Math.random() *
+                    LOVE_COLORS.length
+                )
                 ];
 
             this.alpha = 0;
@@ -1093,8 +1289,8 @@ if (loveScreen && loveCanvas) {
             loveTitle.style.transform =
                 `translate(-50%, -50%) scale(${pulse})`;
 
-            }
         }
+    }
 
 
     /* ========================================
@@ -1158,29 +1354,29 @@ if (loveScreen && loveCanvas) {
     }
 
 
-   /* ========================================
-   STOP LOVE ANIMATION
-   ======================================== */
+    /* ========================================
+    STOP LOVE ANIMATION
+    ======================================== */
 
-function stopLoveAnimation() {
+    function stopLoveAnimation() {
 
-    loveRunning = false;
+        loveRunning = false;
 
-    loveAnimationStarted = false;
+        loveAnimationStarted = false;
 
-    loveFrame = 0;
+        loveFrame = 0;
 
-    loveTitle.style.opacity = '0';
+        loveTitle.style.opacity = '0';
 
-    loveTitle.style.transform = 'scale(1)';
+        loveTitle.style.transform = 'scale(1)';
 
-    loveCtx.clearRect(
-        0,
-        0,
-        window.innerWidth,
-        window.innerHeight
-    );
-}
+        loveCtx.clearRect(
+            0,
+            0,
+            window.innerWidth,
+            window.innerHeight
+        );
+    }
 
 
     /* ========================================
